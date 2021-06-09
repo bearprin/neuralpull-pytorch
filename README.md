@@ -4,6 +4,8 @@ This repository contains the pytorch implementation of paper. [Neural-Pull: Lear
 
 <img src="https://cdn.jsdelivr.net/gh/wzxshhz123/img_md/20210609135321.png" alt="image-20210609135318167" style="zoom:30%;" />
 
+<img src="https://cdn.jsdelivr.net/gh/wzxshhz123/img_md/20210609142906.png" alt="image-20210609142852575" style="zoom:33%;" />
+
 ## Requirements
 
 - Pytorch
