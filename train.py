@@ -165,6 +165,8 @@ if __name__ == '__main__':
             # save ?
             if min_loss >= loss_sum / train_ds.shape_num:
                 min_loss = loss_sum / train_ds.shape_num
+                torch.save(net.state_dict(), os.path.join('experiment', args.name,
+                                                          str(epoch) + '_loss_' + str(min_loss) + '.pth'))
                 print('log at epoch: {}, min_loss: {}'.format(epoch, min_loss))
                 for thresh_ind, thresh in enumerate(args.thresholds):
                     for shape_ind, m in enumerate(mesh_dict[thresh_ind]):
