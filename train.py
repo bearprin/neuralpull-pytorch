@@ -8,8 +8,6 @@ import trimesh
 
 import tqdm
 
-# import wandb
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -27,10 +25,10 @@ parser.add_argument('--device', type=str, default='cuda')
 
 parser.add_argument('--bd', type=float, default=0.55)
 parser.add_argument('--resolution', type=int, default=128)
-parser.add_argument('--thresholds', type=list, default=[0.0, 0.01, 0.05])
+parser.add_argument('--thresholds', type=list, default=[0.0])
 
 parser.add_argument('--name', type=str, default='base')
-parser.add_argument('--epochs', type=int, default=40000)
+parser.add_argument('--epochs', type=int, default=1000)
 parser.add_argument('--batch_size', type=int, default=16)
 parser.add_argument('--lr', type=float, default=0.0001)
 parser.add_argument('--num_workers', type=int, default=20)
@@ -45,11 +43,11 @@ if __name__ == '__main__':
     train_ds = PointGenerateDataset('npy_data', device=args.device)
     train_sampler = SequentialPointCloudRandomPatchSampler(data_source=train_ds, shape_num=train_ds.shape_num)
     train_dl = data.DataLoader(train_ds, batch_size=1, num_workers=args.num_workers,
-                               sampler=train_sampler, pin_memory=args.device == 'cuda',
+                               sampler=train_sampler,
                                )
 
     val_ds = ValDataset(bd=args.bd, resolution=args.resolution)
-    val_dl = data.DataLoader(val_ds, batch_size=1, num_workers=args.num_workers, pin_memory=args.device == 'cuda')
+    val_dl = data.DataLoader(val_ds, batch_size=1, num_workers=args.num_workers)
     args.shape_num = train_ds.shape_num
     # network
     print('Network Configure')
@@ -60,8 +58,6 @@ if __name__ == '__main__':
     if not os.path.exists(os.path.join('experiment', args.name)):
         os.makedirs(os.path.join('experiment', args.name))
 
-    # wandb.init(project='neural-pull', entity='wzxshhz123', name=args.name, config=args, sync_tensorboard=True)
-    # wandb.watch(net, log='all')
     writer = SummaryWriter(os.path.join('experiment', args.name, 'logdir'))
     min_loss = np.inf
     min_cdl1 = np.inf
@@ -123,7 +119,7 @@ if __name__ == '__main__':
                     #     continue
                     # if np.sum(vox > 0.0) < np.sum(vox < 0.0):
                     #     thresh = -thresh
-                    vertices, faces, _, _ = measure.marching_cubes(vox, thresh)
+                    vertices, faces, _, _ = measure.marching_cubes_lewiner(vox, thresh)
 
                     mesh = trimesh.Trimesh(vertices=vertices, faces=faces, process=False)
                     mesh = normalize_mesh_export(mesh)
@@ -156,24 +152,10 @@ if __name__ == '__main__':
                     print('normals_correctness:', nc[thresh_ind] / train_ds.shape_num,
                           'chamferL1:', cd_l1[thresh_ind] / train_ds.shape_num,
                           'chamferL2:', cd_l2[thresh_ind] / train_ds.shape_num)
-                    for shape_ind, m in enumerate(mesh_dict[thresh_ind]):
-                        m.export(os.path.join('experiment', args.name,
-                                              str(epoch) + '_cd_l1_' + str(
-                                                  min_cdl1) + '_' + str(
-                                                  shape_ind) + '_' + str(
-                                                  thresh) + '.obj'))
-            # save ?
-            if min_loss >= loss_sum / train_ds.shape_num:
-                min_loss = loss_sum / train_ds.shape_num
-                torch.save(net.state_dict(), os.path.join('experiment', args.name,
-                                                          str(epoch) + '_loss_' + str(min_loss) + '.pth'))
-                print('log at epoch: {}, min_loss: {}'.format(epoch, min_loss))
-                for thresh_ind, thresh in enumerate(args.thresholds):
-                    for shape_ind, m in enumerate(mesh_dict[thresh_ind]):
-                        normalize_mesh_export(mesh,
-                                              os.path.join('experiment', args.name,
-                                                           str(epoch) + '_loss_' + str(
-                                                               min_loss) + '_' + str(
-                                                               shape_ind) + '_' + str(
-                                                               thresh) + '.obj'))
+                for shape_ind, m in enumerate(mesh_dict[thresh_ind]):
+                    m.export(os.path.join('experiment', args.name,
+                                          str(epoch) + '_cd_l1_' + str(
+                                              cd_l1[thresh_ind] / train_ds.shape_num) + '_' + str(
+                                              shape_ind) + '_' + str(
+                                              thresh) + '.obj'))
     writer.close()

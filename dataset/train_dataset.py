@@ -3,6 +3,7 @@ import os
 import numpy as np
 import torch
 import torch.utils.data as data
+import tqdm
 
 import trimesh
 
@@ -16,7 +17,7 @@ class SequentialPointCloudRandomPatchSampler(data.sampler.Sampler):
         self.shape_num = shape_num
 
     def __iter__(self):
-        rt = torch.randint(0, self.data_source.near_pts.shape[1] - 1, (self.data_source.near_pts.shape[1] - 1,))
+        rt = torch.randint(0, self.data_source.near_pts.shape[1], (self.data_source.near_pts.shape[1],))
         iter_order = [(i, rt[j]) for i in range(self.shape_num) for j in range(self.data_source.near_pts.shape[1] - 1)]
         return iter(iter_order)
 
@@ -59,7 +60,7 @@ class PointGenerateDataset(data.Dataset):
                                                           device=device)
             query_point = query_point.reshape(-1, batch_size, 3)
             knn.k = 1
-            for i in range(query_point.shape[0]):
+            for i in tqdm.trange(query_point.shape[0]):
                 # get the most nearest point from gt_pts for query point
                 _, indx = knn(pnts_pt.reshape(1, pnts_pt.shape[0], pnts_pt.shape[1]),
                               query_point[i].reshape(1, query_point[i].shape[0], query_point[i].shape[1]))
