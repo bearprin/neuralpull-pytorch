@@ -1,10 +1,10 @@
 # NeuralPull_pytorch
 
-This repository contains the pytorch implementation of paper [Neural-Pull: Learning Signed Distance Functions from Point Clouds by Learning to Pull Space onto Surfaces](https://arxiv.org/abs/2011.13495).
+This repository is an unofficial Pytorch implementation of [Neural-Pull: Learning Signed Distance Functions from Point Clouds by Learning to Pull Space onto Surfaces](https://arxiv.org/abs/2011.13495).
 
 <img src="./img/bunny.png" alt="bunny">
 
-## Quick Starta
+## Quick Start
 ```python
 # clone this repo
 git clone https://github.com/bearprin/NeuralPull_pytorch.git
