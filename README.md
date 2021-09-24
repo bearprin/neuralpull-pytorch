@@ -1,4 +1,4 @@
-# NeuralPull_pytorch
+# neuralpull-pytorch
 
 This repository is an unofficial Pytorch implementation of [Neural-Pull: Learning Signed Distance Functions from Point Clouds by Learning to Pull Space onto Surfaces](https://arxiv.org/abs/2011.13495).
 
