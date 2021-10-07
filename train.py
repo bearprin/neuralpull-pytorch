@@ -25,7 +25,7 @@ parser.add_argument('--device', type=str, default='cuda')
 
 parser.add_argument('--bd', type=float, default=0.55)
 parser.add_argument('--resolution', type=int, default=128)
-parser.add_argument('--thresholds', type=list, default=[0.0])
+parser.add_argument('--thresholds', type=list, default=[0.0, 0.0005, 0.005])
 
 parser.add_argument('--name', type=str, default='base')
 parser.add_argument('--epochs', type=int, default=1000)
